@@ -1,0 +1,25 @@
+{
+  "name": "statefulobject",
+  "version": "0.0.1",
+  "description": "A simple object that has states and can switch between them (fully async)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daerdemandt/statefulObject.git"
+  },
+  "keywords": [
+    "state",
+    "machine",
+    "fsm",
+    "stateful"
+  ],
+  "author": "Roman Kuzmichev <daerdemandt@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Daerdemandt/statefulObject/issues"
+  },
+  "homepage": "https://github.com/Daerdemandt/statefulObject#readme"
+}
