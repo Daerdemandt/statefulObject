@@ -4,7 +4,8 @@
   "description": "A simple object that has states and can switch between them (fully async)",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "nyc ./node_modules/.bin/mocha --reporter spec",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "lodash": "^4.17.4",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0"
   }
 }

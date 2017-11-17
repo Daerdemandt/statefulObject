@@ -13,5 +13,12 @@ before_script:
   - ./cc-test-reporter before-build
 script:
   - npm test
-after_script:
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+after_success:
+  - >
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ];
+    then
+    npm run coverage;
+    ./cc-test-reporter format-coverage --input-type lcov coverage.lcov;
+    ./cc-test-reporter upload-coverage;
+    ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT;
+    fi
