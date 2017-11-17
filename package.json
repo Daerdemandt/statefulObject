@@ -4,7 +4,7 @@
   "description": "A simple object that has states and can switch between them (fully async)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/Daerdemandt/statefulObject/issues"
   },
-  "homepage": "https://github.com/Daerdemandt/statefulObject#readme"
+  "homepage": "https://github.com/Daerdemandt/statefulObject#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "lodash": "^4.17.4",
+    "mocha": "^4.0.1"
+  }
 }
