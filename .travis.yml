@@ -20,5 +20,4 @@ after_success:
     npm run coverage;
     ./cc-test-reporter format-coverage --input-type lcov coverage.lcov;
     ./cc-test-reporter upload-coverage;
-    ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT;
     fi
