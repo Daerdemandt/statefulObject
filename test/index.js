@@ -30,6 +30,33 @@ const generatePayload = () => [_.uniqueId()]; // TODO: test for different length
 
 describe('#stateChange', () => {
 	class Letter extends StatefulObject(alphabet) {};
+	it('changes the state to the one you say', () => {
+		const obj = new Letter;
+		const otherStates = _.flow(_.tail, _.shuffle)(alphabet);
+		let p = Promise.resolve();
+		for (const state of otherStates) {
+			p = p.then(() => obj.state(state)).then(() => obj.state().should.equal(state))
+		}
+		return p.should.not.be.rejected;
+	});
+	it('forbids switching to unknown states', () => {
+		const obj = new Letter;
+		return Promise.all(['1', 'ab', {a:'a'}].map((invalidState) => obj.state(invalidState).should.be.rejectedWith('is not a valid state')));
+	});
+	it('forbids attempts to change the state in onEnter handlers', () => {
+		const obj = new Letter;
+		obj.onEnter('b', () => obj.state('c'));
+		return obj.state('b').should.be.rejectedWith(Error);
+	});
+	it('forbids attempts to change the state in onLeave handlers', () => {
+		const obj = new Letter;
+		obj.onLeave('a', () => obj.state('c'));
+		return obj.state('b').should.be.rejectedWith(Error);
+	});
+});
+
+describe('#handlers', () => {
+	class Letter extends StatefulObject(alphabet) {};
 	it('before switching state, calls onLeave handlers and passes payloads to them', () => {
 		const obj = new Letter;
 		const payloads = {};
@@ -44,15 +71,6 @@ describe('#stateChange', () => {
 		let p = Promise.resolve();
 		for (const state of otherStates) {
 			p = p.then(() => obj.state(state, ...payloads[obj.state()]));
-		}
-		return p.should.not.be.rejected;
-	});
-	it('changes the state to the one you say', () => {
-		const obj = new Letter;
-		const otherStates = _.flow(_.tail, _.shuffle)(alphabet);
-		let p = Promise.resolve();
-		for (const state of otherStates) {
-			p = p.then(() => obj.state(state)).then(() => obj.state().should.equal(state))
 		}
 		return p.should.not.be.rejected;
 	});
@@ -73,14 +91,21 @@ describe('#stateChange', () => {
 		}
 		return p.should.not.be.rejected;
 	});
-	it('forbids attempts to change the state in onEnter handlers', () => {
+	it('allows removing handlers', () => {
 		const obj = new Letter;
-		obj.onEnter('b', () => obj.state('c'));
-		return obj.state('b').should.be.rejectedWith(Error);
-	});
-	it('forbids attempts to change the state in onLeave handlers', () => {
-		const obj = new Letter;
-		obj.onLeave('a', () => obj.state('c'));
-		return obj.state('b').should.be.rejectedWith(Error);
+		let handlerCallCount = 0;
+		const handler = (...payload) => handlerCallCount++;
+		alphabet.map((state) => {
+			obj.onEnter(state, handler);
+			obj.offEnter(state, handler);
+			obj.onLeave(state, handler);
+			obj.offLeave(state, handler);
+		});
+		const otherStates = _.flow(_.tail, _.shuffle)(alphabet);
+		let p = Promise.resolve();
+		for (const state of otherStates) {
+			p = p.then(() => obj.state(state));
+		}
+		return p.then(() => handlerCallCount.should.equal(0));
 	});
 });

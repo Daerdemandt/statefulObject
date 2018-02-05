@@ -30,7 +30,7 @@ class EventEmitterPromiseAllEmit extends EventEmitter {
 
 //TODO: use symbols here
 const StatefulObject = (states) => class StatefulObject extends
-takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') {
+takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { // TODO: just extend EE
 	constructor(state) {
 		super();
 		if (!state) {
