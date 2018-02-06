@@ -29,6 +29,16 @@ class EventEmitterPromiseAllEmit extends EventEmitter {
 }
 
 //TODO: use symbols here
+/*
+ * NOTE: we are only leaving some EE methods accessible from outside because
+ * some methods are broken.
+ * For example, .once() *may* not work correctly: in browser versions of EE,
+ * .once is responsible for wrapping the handler to self-destruct after the
+ * first call, whereas node version does not wrap handlers and makes .emit
+ * responsible for removing once-handlers.
+ * Thus, .once works fine in browser but works like .on in node.\
+ * Until this is fixed, takeSomeMethods is used to hide the ugly.
+ */
 const StatefulObject = (states) => class StatefulObject extends
 takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { // TODO: just extend EE
 	constructor(state) {
@@ -63,7 +73,7 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 			}).then(() => this._stateChangeLock = null);
 		});
 	}
-	//TODO: add onceEnter, onceLeave
+	//TODO: add onceEnter, onceLeave. Note the nuance about broken .once though
 	onEnter(state, callback) {this.on(`enterState:${state}`, callback);}
 	offEnter(state, callback) {this.removeListener(`enterState:${state}`, callback);}
 	onLeave(state, callback) {this.on(`leaveState:${state}`, callback);}
