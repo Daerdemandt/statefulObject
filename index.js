@@ -49,10 +49,11 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 		if (!newState) {
 			return this._state;
 		}
-		if (states.indexOf(newState) >= 0) {
-			if (this._stateChangeLock) {return Promise.reject(new Error(
+		return Promise.resolve().then(() => {
+			if (!states.includes(newState)) throw new Error(`'${newState}' is not a valid state, valid ones are ${states}`);
+			if (this._stateChangeLock) throw new Error(
 				`Tried to switch (${this._state} -> ${newState}) while already switching (${this._stateChangeLock})`
-			))};
+			);
 			this._stateChangeLock = `${this._state} -> ${newState}`;
 			vvlog(`${this.name}: ${this._stateChangeLock}`);
 			return this.emit(`leaveState:${this._state}`, ...payload).then(() => {
@@ -60,8 +61,7 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 				this._stateTimestamp = Date.now();
 				return this.emit(`enterState:${newState}`, ...payload);
 			}).then(() => this._stateChangeLock = null);
-		}
-		return Promise.reject(Error(`'${newState}' is not a valid state, valid ones are ${states}`));
+		});
 	}
 	//TODO: add onceEnter, onceLeave
 	onEnter(state, callback) {this.on(`enterState:${state}`, callback);}
