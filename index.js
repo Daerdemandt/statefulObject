@@ -61,7 +61,7 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 				return this.emit(`enterState:${newState}`, ...payload);
 			}).then(() => this._stateChangeLock = null);
 		}
-		throw new Error(`'${newState}' is not a valid state, valid ones are ${states}`);
+		return Promise.reject(Error(`'${newState}' is not a valid state, valid ones are ${states}`));
 	}
 	//TODO: add onceEnter, onceLeave
 	onEnter(state, callback) {this.on(`enterState:${state}`, callback);}
