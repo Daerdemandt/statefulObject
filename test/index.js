@@ -27,6 +27,7 @@ describe('#initialState', () => {
 });
 
 const generatePayload = () => [_.uniqueId()]; // TODO: test for different lengths and content
+const pairwise = (arr) => _.zip(_.initial(arr), _.tail(arr));
 
 describe('#stateChange', () => {
 	class Letter extends StatefulObject(alphabet) {};
@@ -39,20 +40,50 @@ describe('#stateChange', () => {
 		}
 		return p.should.not.be.rejected;
 	});
+	it('allows requesting state switch in handlers', () => {
+		const obj = new Letter;
+		const statePairs = _.flow(_.tail, _.shuffle, pairwise)(alphabet);
+		const firstState = statePairs[0][0];
+		const lastState = _.last(statePairs)[0];
+		const result = new Promise((yay, nay) => obj.onEnter(lastState, yay));
+		statePairs.map(([state1, state2]) => {
+			obj.onEnter(state1, () => { obj.state(state2); })
+		})
+		obj.state(firstState);
+		return result.should.not.be.rejected;
+	});
+	it('hangs with handlers returning .state(...) result due to promise dependency cycle', () => {
+		const obj = new Letter;
+		const statePairs = _.flow(_.tail, _.shuffle, pairwise)(alphabet);
+		const firstState = statePairs[0][0];
+		const lastState = _.last(statePairs)[0];
+		const result = new Promise((yay, nay) => {
+			obj.onEnter(lastState, yay);
+			setTimeout(nay, 1000);
+		});
+		statePairs.map(([state1, state2]) => {
+			obj.onEnter(state1, () => obj.state(state2))
+		})
+		obj.state(firstState);
+		return result.should.not.be.fulfilled;
+	});
 	it('forbids switching to unknown states', () => {
 		const obj = new Letter;
 		return Promise.all(['1', 'ab', {a:'a'}].map((invalidState) => obj.state(invalidState).should.be.rejectedWith('is not a valid state')));
 	});
-	it('forbids attempts to change the state in onEnter handlers', () => {
+	it('forbids multiple attempts to change the state in onEnter handlers', () => {
 		const obj = new Letter;
 		obj.onEnter('b', () => obj.state('c'));
+		obj.onEnter('b', () => obj.state('d'));
 		return obj.state('b').should.be.rejectedWith(Error);
 	});
-	it('forbids attempts to change the state in onLeave handlers', () => {
+	it('forbids multiple attempts to change the state in onLeave handlers', () => {
 		const obj = new Letter;
 		obj.onLeave('a', () => obj.state('c'));
+		obj.onLeave('a', () => obj.state('d'));
 		return obj.state('b').should.be.rejectedWith(Error);
 	});
+
 });
 
 describe('#handlers', () => {
