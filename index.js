@@ -59,18 +59,18 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 		if (!newState) {
 			return this._state;
 		}
-		return Promise.resolve().then(() => {
+		return new Promise((yay, nay) => {
 			if (!states.includes(newState)) throw new Error(`'${newState}' is not a valid state, valid ones are ${states}`);
 			if (this._stateChangeLock) throw new Error(
 				`Tried to switch (${this._state} -> ${newState}) while already switching (${this._stateChangeLock})`
 			);
 			this._stateChangeLock = `${this._state} -> ${newState}`;
 			vvlog(`${this.name}: ${this._stateChangeLock}`);
-			return this.emit(`leaveState:${this._state}`, ...payload).then(() => {
+			this.emit(`leaveState:${this._state}`, ...payload).then(() => {
 				this._state = newState;
 				this._stateTimestamp = Date.now();
 				return this.emit(`enterState:${newState}`, ...payload);
-			}).then(() => this._stateChangeLock = null);
+			}).then(() => this._stateChangeLock = null).then(yay).catch(nay);
 		});
 	}
 	//TODO: add onceEnter, onceLeave. Note the nuance about broken .once though
