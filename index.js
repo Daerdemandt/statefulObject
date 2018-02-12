@@ -123,6 +123,21 @@ class ActiveStatefulObject extends StatefulObject {
 	}
 }
 
-//TODO: make passive behaviour default, active - toggleable
+// Basically cond, but with constructors instead of actions
+const DispatchClass = (pairs) => {
+	if (!pairs.length) throw new Error('Array of predicate-class pairs is empty');
+	return class DispatchClass {
+		constructor(...data) {
+			for (const [predicate, cls] of pairs) {
+				if (predicate(...data)) return new cls(...data);
+			}
+			throw new Error('No predicate matched the data');
+		}
+	}
+}
+
 //TODO: break promise dependency cycles due to handlers like () => obj.state(...)
-module.exports = ActiveStatefulObject;
+module.exports = DispatchClass([
+	[(states, state, {passiveMode}={}) => !passiveMode, ActiveStatefulObject],
+	[() => true, StatefulObject]
+]);

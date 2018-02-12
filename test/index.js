@@ -11,6 +11,7 @@ const StatefulObject = require('../index.js');
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 class Letter extends StatefulObject { constructor(letter) {super(alphabet, letter);} };
+class PassiveLetter extends StatefulObject { constructor(letter) {super(alphabet, letter, {passiveMode:true});} };
 
 describe('#initialState', () => {
 	it('starts as first state if no initial state specified', () => {
@@ -82,7 +83,16 @@ describe('#stateChange', () => {
 		obj.onLeave('a', () => obj.state('d'));
 		return obj.state('b').should.be.rejectedWith(Error);
 	});
-
+	it('in passive mode, forbids state changes from onEnter handlers altogether', () => {
+		const obj = new PassiveLetter;
+		obj.onEnter('b', () => obj.state('c'));
+		return obj.state('b').should.be.rejectedWith(Error);
+	});
+	it('in passive mode, forbids state changes from onLeave handlers altogether', () => {
+		const obj = new PassiveLetter;
+		obj.onLeave('a', () => obj.state('c'));
+		return obj.state('b').should.be.rejectedWith(Error);
+	});
 });
 
 describe('#handlers', () => {
