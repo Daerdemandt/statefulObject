@@ -59,13 +59,9 @@ class EventEmitterPromiseAllEmit extends EventEmitter {
  * However, simple use case of "after entering state X, do Y and change state to Z"
  * becomes a bit complicated to implement.
  */
-const StatefulObject = (states) => class StatefulObject extends
-takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { // TODO: just extend EE
-	constructor(state) {
+class StatefulObject extends takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { // TODO: just extend EE
+	constructor(states, state=states[0]) {//TODO: make sure that states is nonempty
 		super();
-		if (!state) {
-			state = states[0];
-		}
 		this._state = state;
 		this._stateTimestamp = Date.now();
 	
@@ -80,7 +76,7 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
 			return this._state;
 		}
 		return new Promise((yay, nay) => {
-			if (!states.includes(newState)) throw new Error(`'${newState}' is not a valid state, valid ones are ${states}`);
+			if (!this.allowedStates.includes(newState)) throw new Error(`'${newState}' is not a valid state, valid ones are ${this.allowedStates}`);
 			if (this._stateChangeLock) throw new Error(
 				`Tried to switch (${this._state} -> ${newState}) while already switching (${this._stateChangeLock})`
 			);
@@ -107,7 +103,7 @@ takeSomeMethods(EventEmitterPromiseAllEmit, 'emit', 'on', 'removeListener') { //
  * issued by one of handlers. Thus, you still cannot issue ambiguous state change,
  * but you can try and some job will be done.
  */
-const ActiveStatefulObject = (states) => class ActiveStatefulObject extends StatefulObject(states) {
+class ActiveStatefulObject extends StatefulObject {
 	state(newState, ...payload) {
 		if (!newState) return super.state();
 		// TODO: if error happens in current state change, reject scheduled one too

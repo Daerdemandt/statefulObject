@@ -10,9 +10,9 @@ chai.should();
 const StatefulObject = require('../index.js');
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+class Letter extends StatefulObject { constructor(letter) {super(alphabet, letter);} };
 
 describe('#initialState', () => {
-	class Letter extends StatefulObject(alphabet) {};
 	it('starts as first state if no initial state specified', () => {
 		(new Letter).state().should.equal(alphabet[0]);
 	});
@@ -30,7 +30,6 @@ const generatePayload = () => [_.uniqueId()]; // TODO: test for different length
 const pairwise = (arr) => _.zip(_.initial(arr), _.tail(arr));
 
 describe('#stateChange', () => {
-	class Letter extends StatefulObject(alphabet) {};
 	it('changes the state to the one you say', () => {
 		const obj = new Letter;
 		const otherStates = _.flow(_.tail, _.shuffle)(alphabet);
@@ -87,7 +86,6 @@ describe('#stateChange', () => {
 });
 
 describe('#handlers', () => {
-	class Letter extends StatefulObject(alphabet) {};
 	it('before switching state, calls onLeave handlers and passes payloads to them', () => {
 		const obj = new Letter;
 		const payloads = {};
