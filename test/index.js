@@ -139,4 +139,30 @@ describe('#handlers', () => {
 		}
 		return p.then(() => handlerCallCount.should.equal(0));
 	});
+	it('calls handlers synchronously but waits for them asynchronously', () => {
+		const obj = new Letter('a');
+		let thisStack = true;
+		const result = [];
+		obj.onLeave('a', () => {
+			result.push(thisStack.should.equal(true));
+		});
+		obj.onLeave('a', () => new Promise((yay, nay) => {
+			result.push(thisStack.should.equal(true));
+		}).then(() => {
+			result.push(thisStack.should.equal(false));
+		}));
+		obj.onEnter('b', () => {
+			result.push(thisStack.should.equal(true));
+		});
+		obj.onEnter('b', () => new Promise((yay, nay) => {
+			result.push(thisStack.should.equal(true));
+		}).then(() => {
+			result.push(thisStack.should.equal(false));
+		}));
+		obj.state('b').then(() => {
+			result.push(thisStack.should.equal(false));
+		});
+		thisStack = false;
+		return Promise.all(result);
+	})
 });
