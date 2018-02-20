@@ -35,9 +35,9 @@ cat.state(); // 'playing'
 cat.state('bored'); // (B) gets called before (A)
 ```
 
-Note that when you set a new state, a promise is returned. That promise would be resolved once all handlers are done with their business. So, if the state switch wouldn't be complete without some async operation, just return a promise that resolves when the operation ends.
+Note that when you set a new state, a promise is returned. That promise resolves once all handlers are done with their business. So, if the state switch isn't going to be complete without some async operation, one should just return a promise that resolves when the operation ends.
 
-Arbitrary number of arguments can be supplied to handlers. Both `onEnter` and `onLeave` handlers would get those.
+Arbitrary number of arguments can be supplied to handlers. Both `onEnter` and `onLeave` handlers recieve these.
 
 ```javascript
 cat.onEnter('sleeping', (location) => console.log(`The cat is sleeping on the ${location}`));
@@ -52,7 +52,7 @@ cat.onEnter('eating', () => delay().then(() => {
 }));
 ```
 
-You can change the state from handlers. However, ambiguous state changes would result in an error so don't do this:
+You can change the state from handlers. However, ambiguous state changes result in an error so don't do this:
 
 ```javascript
 cat.onEnter('sleeping', () => delay().then(() => {
@@ -64,15 +64,15 @@ cat.onEnter('sleeping', () => delay().then(() => {
 cat.state('sleeping'); // This will cause an arror
 ```
 
-You can remove that problem altogether, by setting `passiveMode = true` in options argument. This forbids setting state during a state switch.
+You can remove this problem altogether, by setting `passiveMode = true` in the options argument. This forbids setting state during a state switch.
 
 ```javascript
 const stuffedCat = new StatefulObject(['on the shelf', 'on the windowsill', undefined, {passiveMode:true});
 
-stuffedCat.onEnter('on the windowsill', () => stuffedCat.state('on the shelf')); // This would cause an error
+stuffedCat.onEnter('on the windowsill', () => stuffedCat.state('on the shelf')); // Causes an error
 stuffedCat.state('on the windowsill');
 
-stuffedCat.state('on the windowsill').then(() => stuffedCat.state('on the shelf')); // This would work
+stuffedCat.state('on the windowsill').then(() => stuffedCat.state('on the shelf')); // Works
 ```
 
 
