@@ -30,6 +30,14 @@ describe('#DispatchClass', () => {
 		[_.eq('a'), A],
 		[_.eq('b'), B]
 	]);
+	class C extends AorB {
+		constructor(data) {
+			super(data);
+		}
+		getData() {
+			return this.data;
+		}
+	}
 	it('allows an instance to choose its class based on constructor args', () => {
 		const result = [];
 		const a = new AorB('a');
@@ -47,6 +55,10 @@ describe('#DispatchClass', () => {
 		new AorB('c');
 	}).should.be.rejectedWith('No predicate matched')
 	);
+	it('Can be extended just like any other class', () => {
+		const c = new C('a');
+		return c.getData().should.be.equal('a')
+	})
 
 
 });
